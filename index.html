@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Compressor - Reduce PDF File Size Online</title>
+    <meta name="description" content="Compress PDF files online for free. Reduce file size while maintaining quality. Fast, secure, and works in your browser.">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-file-pdf"></i>
+                <h1>PDF Compressor</h1>
+            </div>
+            <p class="subtitle">Reduce your PDF file size while maintaining quality</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section class="upload-section" id="uploadSection">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h2>Drop your PDF here</h2>
+                    <p>or <span class="browse-text">browse files</span></p>
+                    <div class="file-info">
+                        <small>Maximum file size: 100MB • Supports multiple files</small>
+                    </div>
+                </div>
+                <input type="file" id="fileInput" accept=".pdf" multiple style="display: none;">
+            </section>
+
+            <!-- Compression Options -->
+            <section class="options-section" id="optionsSection" style="display: none;">
+                <div class="options-card">
+                    <h3>Compression Settings</h3>
+                    <div class="compression-options">
+                        <div class="option-group">
+                            <label>Compression Level:</label>
+                            <div class="compression-levels">
+                                <input type="radio" id="low" name="compression" value="low" checked>
+                                <label for="low" class="compression-label">
+                                    <span class="level-name">Low</span>
+                                    <span class="level-desc">Better quality, larger size</span>
+                                </label>
+
+                                <input type="radio" id="medium" name="compression" value="medium">
+                                <label for="medium" class="compression-label">
+                                    <span class="level-name">Medium</span>
+                                    <span class="level-desc">Balanced quality and size</span>
+                                </label>
+
+                                <input type="radio" id="high" name="compression" value="high">
+                                <label for="high" class="compression-label">
+                                    <span class="level-name">High</span>
+                                    <span class="level-desc">Smaller size, good quality</span>
+                                </label>
+
+                                <input type="radio" id="custom" name="compression" value="custom">
+                                <label for="custom" class="compression-label">
+                                    <span class="level-name">Custom</span>
+                                    <span class="level-desc">Set target file size</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="option-group target-size-group" id="targetSizeGroup" style="display: none;">
+                            <label for="targetSizeSlider">Target File Size:</label>
+                            <div class="slider-container">
+                                <input type="range" id="targetSizeSlider" min="50" max="5000" value="500" step="50">
+                                <div class="slider-labels">
+                                    <span>50 KB</span>
+                                    <span id="targetSizeValue">500 KB</span>
+                                    <span>5 MB</span>
+                                </div>
+                            </div>
+                            <div class="size-input-container">
+                                <input type="number" id="targetSizeInput" min="50" max="5000" value="500" step="50">
+                                <span>KB</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="compress-btn" id="compressBtn">
+                        <i class="fas fa-compress-alt"></i>
+                        Compress PDF
+                    </button>
+                </div>
+            </section>
+
+            <!-- File List -->
+            <section class="files-section" id="filesSection" style="display: none;">
+                <div class="files-header">
+                    <h3>Selected Files</h3>
+                    <button class="clear-all-btn" id="clearAllBtn">
+                        <i class="fas fa-trash"></i>
+                        Clear All
+                    </button>
+                </div>
+                <div class="files-list" id="filesList"></div>
+            </section>
+
+            <!-- Progress Section -->
+            <section class="progress-section" id="progressSection" style="display: none;">
+                <div class="progress-card">
+                    <h3>Compressing Files...</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">0%</div>
+                    <div class="current-file" id="currentFile"></div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-card">
+                    <div class="results-header">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Compression Complete!</h3>
+                    </div>
+                    <div class="results-stats" id="resultsStats"></div>
+                    <div class="results-files" id="resultsFiles"></div>
+                    <div class="results-actions">
+                        <button class="download-all-btn" id="downloadAllBtn">
+                            <i class="fas fa-download"></i>
+                            Download All
+                        </button>
+                        <button class="compress-more-btn" id="compressMoreBtn">
+                            <i class="fas fa-plus"></i>
+                            Compress More Files
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h4>100% Secure</h4>
+                    <p>All processing happens in your browser. Your files never leave your device.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-bolt"></i>
+                    <h4>Lightning Fast</h4>
+                    <p>Advanced compression algorithms for quick processing without quality loss.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h4>Works Everywhere</h4>
+                    <p>Compatible with all devices and browsers. No software installation required.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-infinity"></i>
+                    <h4>Unlimited Use</h4>
+                    <p>Compress as many PDF files as you want, completely free of charge.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 PDF Compressor. Built with ❤️ for better file management.</p>
+            <p class="made-by">Made by <span class="creator-name">Faisal</span></p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
