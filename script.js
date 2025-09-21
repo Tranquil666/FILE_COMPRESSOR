@@ -86,6 +86,15 @@ class PDFCompressor {
                 this.removeFile(index);
             }
         });
+
+        // Download button events
+        this.resultsFiles.addEventListener('click', (e) => {
+            if (e.target.classList.contains('download-btn') || e.target.closest('.download-btn')) {
+                const button = e.target.classList.contains('download-btn') ? e.target : e.target.closest('.download-btn');
+                const index = parseInt(button.dataset.index);
+                this.downloadFile(index);
+            }
+        });
         document.addEventListener('dragover', (e) => e.preventDefault());
         document.addEventListener('drop', (e) => e.preventDefault());
         
@@ -1515,7 +1524,7 @@ class PDFCompressor {
                     </div>
                     <span class="compression-badge">${fileData.compressionRatio}%</span>
                 </div>
-                <button class="download-btn" onclick="compressor.downloadFile(${index})">
+                <button class="download-btn" data-index="${index}">
                     <i class="fas fa-download"></i>
                     Download
                 </button>
