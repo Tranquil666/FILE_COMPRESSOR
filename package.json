@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "pdf-compressor",
   "version": "1.0.0",
   "description": "Online PDF file compressor with modern UI - compress PDF files client-side",
