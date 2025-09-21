@@ -11,6 +11,14 @@ body {
     color: #333;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
+    /* Mobile optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    /* Smooth scrolling on mobile */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
 }
 
 .container {
@@ -671,14 +679,75 @@ body {
     font-size: 1.2rem;
 }
 
-/* Responsive Design */
+/* Enhanced Mobile Optimizations */
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+    .upload-area,
+    .compression-label,
+    .compress-btn,
+    .download-btn,
+    .clear-all-btn,
+    .remove-file-btn {
+        min-height: 44px; /* Apple's recommended minimum touch target */
+    }
+    
+    .compression-label {
+        padding: 1.25rem;
+    }
+    
+    .compress-btn,
+    .download-all-btn,
+    .compress-more-btn {
+        padding: 1.25rem 2rem;
+        font-size: 1.1rem;
+    }
+    
+    .clear-all-btn,
+    .download-btn {
+        padding: 0.75rem 1.25rem;
+        font-size: 1rem;
+    }
+}
+
+/* Tablet styles */
+@media (max-width: 1024px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .compression-levels {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile styles */
 @media (max-width: 768px) {
     .container {
         padding: 10px;
     }
     
+    .header {
+        margin-bottom: 2rem;
+    }
+    
     .logo h1 {
         font-size: 2rem;
+    }
+    
+    .subtitle {
+        font-size: 1.1rem;
+        padding: 0 1rem;
+    }
+    
+    .main-content {
+        border-radius: 15px;
+        margin-bottom: 2rem;
     }
     
     .upload-section,
@@ -686,16 +755,44 @@ body {
     .files-section,
     .progress-section,
     .results-section {
-        padding: 2rem 1.5rem;
+        padding: 1.5rem 1rem;
+    }
+    
+    .upload-area {
+        padding: 2rem 1rem;
+        border-radius: 12px;
+    }
+    
+    .upload-area h2 {
+        font-size: 1.3rem;
+    }
+    
+    .upload-area p {
+        font-size: 1rem;
     }
     
     .compression-levels {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .compression-label {
+        padding: 1.25rem 1rem;
+        text-align: left;
+    }
+    
+    .level-name {
+        font-size: 1rem;
+    }
+    
+    .level-desc {
+        font-size: 0.85rem;
     }
     
     .target-size-group {
         margin-top: 1rem;
         padding: 1rem;
+        border-radius: 8px;
     }
     
     .slider-labels {
@@ -703,12 +800,15 @@ body {
     }
     
     .size-input-container {
-        flex-direction: column;
-        gap: 0.25rem;
+        flex-direction: row;
+        justify-content: center;
+        gap: 0.5rem;
     }
     
     #targetSizeInput {
-        width: 80px;
+        width: 100px;
+        padding: 0.75rem;
+        font-size: 1rem;
     }
     
     .files-header {
@@ -717,55 +817,257 @@ body {
         align-items: stretch;
     }
     
+    .files-header h3 {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+    
+    .clear-all-btn {
+        align-self: center;
+        width: fit-content;
+        margin: 0 auto;
+    }
+    
     .file-item {
         flex-direction: column;
         gap: 1rem;
         align-items: stretch;
+        padding: 1.25rem;
+    }
+    
+    .file-info-left {
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .remove-file-btn {
+        align-self: center;
+        padding: 0.75rem 1rem;
+        background: #ff6b6b;
+        color: white;
+        border-radius: 6px;
     }
     
     .result-file-item {
         flex-direction: column;
         gap: 1rem;
         align-items: stretch;
+        padding: 1.25rem;
+    }
+    
+    .result-file-info {
+        justify-content: center;
+        text-align: center;
+        flex-direction: column;
+        gap: 0.5rem;
     }
     
     .results-actions {
         flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .download-all-btn,
+    .compress-more-btn {
+        width: 100%;
+        justify-content: center;
     }
     
     .features-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .feature-card {
+        padding: 1.5rem;
+    }
+    
+    .stat-item {
+        display: block;
+        margin: 0.5rem 0;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .stat-value {
+        font-size: 1.3rem;
     }
 }
 
+/* Small mobile devices */
 @media (max-width: 480px) {
+    .container {
+        padding: 8px;
+    }
+    
+    .header {
+        margin-bottom: 1.5rem;
+    }
+    
     .logo {
         flex-direction: column;
         gap: 0.5rem;
     }
     
     .logo i {
-        font-size: 2rem;
+        font-size: 2.5rem;
     }
     
     .logo h1 {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
     }
     
     .subtitle {
         font-size: 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .main-content {
+        border-radius: 12px;
+    }
+    
+    .upload-section,
+    .options-section,
+    .files-section,
+    .progress-section,
+    .results-section {
+        padding: 1.25rem 0.75rem;
     }
     
     .upload-area {
-        padding: 2rem 1rem;
+        padding: 1.5rem 0.75rem;
     }
     
     .upload-icon {
         font-size: 3rem;
     }
     
+    .upload-area h2 {
+        font-size: 1.2rem;
+    }
+    
+    .options-card h3,
+    .files-header h3,
+    .progress-card h3,
+    .results-header h3 {
+        font-size: 1.1rem;
+    }
+    
     .compression-levels {
         grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .compression-label {
+        padding: 1rem 0.75rem;
+    }
+    
+    .target-size-group {
+        padding: 0.75rem;
+    }
+    
+    .compress-btn {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .file-item,
+    .result-file-item {
+        padding: 1rem;
+    }
+    
+    .feature-card {
+        padding: 1.25rem;
+    }
+    
+    .feature-card i {
+        font-size: 2rem;
+    }
+    
+    .feature-card h4 {
+        font-size: 1.1rem;
+    }
+    
+    .results-stats {
+        padding: 1rem;
+    }
+    
+    .stat-item {
+        margin: 0.25rem 0;
+        padding: 0.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.2rem;
+    }
+    
+    .footer {
+        padding: 1.5rem 0;
+        font-size: 0.9rem;
+    }
+    
+    .creator-name {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+    .container {
+        padding: 5px;
+    }
+    
+    .logo h1 {
+        font-size: 1.6rem;
+    }
+    
+    .subtitle {
+        font-size: 0.95rem;
+    }
+    
+    .upload-section,
+    .options-section,
+    .files-section,
+    .progress-section,
+    .results-section {
+        padding: 1rem 0.5rem;
+    }
+    
+    .upload-area {
+        padding: 1.25rem 0.5rem;
+    }
+    
+    .upload-area h2 {
+        font-size: 1.1rem;
+    }
+    
+    .upload-area p {
+        font-size: 0.95rem;
+    }
+    
+    .compression-label {
+        padding: 0.875rem 0.5rem;
+    }
+    
+    .level-name {
+        font-size: 0.95rem;
+    }
+    
+    .level-desc {
+        font-size: 0.8rem;
+    }
+    
+    .compress-btn {
+        padding: 0.875rem 1.25rem;
+        font-size: 0.95rem;
+    }
+    
+    #targetSizeInput {
+        width: 80px;
+        padding: 0.625rem;
     }
 }
 
@@ -821,4 +1123,63 @@ body {
 
 .mt-2 {
     margin-top: 2rem;
+}
+
+/* Mobile-specific utilities */
+.mobile-full-width {
+    width: 100% !important;
+}
+
+.mobile-center {
+    text-align: center !important;
+}
+
+.mobile-stack {
+    flex-direction: column !important;
+}
+
+/* Prevent text selection on interactive elements for better mobile UX */
+.upload-area,
+.compression-label,
+.compress-btn,
+.download-btn,
+.clear-all-btn,
+.remove-file-btn,
+.download-all-btn,
+.compress-more-btn {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* Prevent tap highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Improve button focus states for accessibility */
+.compress-btn:focus,
+.download-btn:focus,
+.clear-all-btn:focus,
+.remove-file-btn:focus,
+.download-all-btn:focus,
+.compress-more-btn:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Better mobile scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
 }
