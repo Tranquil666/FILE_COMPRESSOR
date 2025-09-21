@@ -228,11 +228,10 @@ class PDFCompressor {
         this.updateTargetSizeDisplay(value);
     }
 
-    updateTargetSizeFromInput() {
-        const value = Math.max(50, Math.min(5000, parseInt(this.targetSizeInput.value) || 500));
-        this.targetSizeInput.value = value;
-        this.targetSizeSlider.value = value;
-        this.updateTargetSizeDisplay(value);
+    updateTargetSizeDisplay(value) {
+        if (this.targetSizeValue) {
+            this.targetSizeValue.textContent = `${value} KB`;
+        }
     }
 
     startPerformanceMonitoring(operation) {
