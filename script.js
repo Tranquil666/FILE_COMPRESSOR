@@ -4,7 +4,14 @@ class PDFCompressor {
         this.selectedFiles = [];
         this.compressedFiles = [];
         this.isProcessing = false;
-        
+        this.performanceMetrics = {
+            totalCompressionTime: 0,
+            averageCompressionTime: 0,
+            totalFilesProcessed: 0,
+            totalOriginalSize: 0,
+            totalCompressedSize: 0
+        };
+
         this.initializeElements();
         this.bindEvents();
     }
@@ -104,57 +111,73 @@ class PDFCompressor {
     handleDrop(e) {
         e.preventDefault();
         this.uploadArea.classList.remove('dragover');
-        
-        const files = Array.from(e.dataTransfer.files).filter(file => 
-            file.type === 'application/pdf'
-        );
-        
-        if (files.length > 0) {
-            this.addFiles(files);
+
+        const files = Array.from(e.dataTransfer.files);
+
+        // Validate files
+        const invalidFiles = files.filter(file => file.type !== 'application/pdf');
+        const oversizedFiles = files.filter(file => file.size > 100 * 1024 * 1024);
+
+        if (invalidFiles.length > 0) {
+            this.showNotification(`Invalid file types: ${invalidFiles.map(f => f.name).join(', ')}. Only PDF files are supported.`, 'error');
+            return;
+        }
+
+        if (oversizedFiles.length > 0) {
+            this.showNotification(`Files too large: ${oversizedFiles.map(f => f.name).join(', ')}. Maximum size is 100MB.`, 'error');
+            return;
+        }
+
+        // Add valid files
+        files.forEach(file => {
+            if (!this.selectedFiles.find(f => f.name === file.name && f.size === file.size)) {
+                this.selectedFiles.push(file);
+            }
+        });
+
+        this.renderFilesList();
+        this.showSection('filesSection');
+
+        // Show notification
+        if (files.length === 1) {
+            this.showNotification(`Dropped "${files[0].name}" (${this.formatFileSize(files[0].size)})`, 'success');
         } else {
-            this.showNotification('Please select only PDF files.', 'error');
+            this.showNotification(`Dropped ${files.length} files`, 'success');
         }
     }
 
     handleFileSelect(e) {
         const files = Array.from(e.target.files);
-        this.addFiles(files);
-        // Don't reset input - let user keep their selection
-    }
 
-    addFiles(files) {
-        // Filter out files that are already selected to prevent duplicates
-        const validFiles = files.filter(file => {
-            if (file.type !== 'application/pdf') {
-                this.showNotification(`${file.name} is not a PDF file.`, 'error');
-                return false;
+        // Validate files
+        const invalidFiles = files.filter(file => file.type !== 'application/pdf');
+        const oversizedFiles = files.filter(file => file.size > 100 * 1024 * 1024);
+
+        if (invalidFiles.length > 0) {
+            this.showNotification(`Invalid file types: ${invalidFiles.map(f => f.name).join(', ')}. Only PDF files are supported.`, 'error');
+            return;
+        }
+
+        if (oversizedFiles.length > 0) {
+            this.showNotification(`Files too large: ${oversizedFiles.map(f => f.name).join(', ')}. Maximum size is 100MB.`, 'error');
+            return;
+        }
+
+        // Add valid files
+        files.forEach(file => {
+            if (!this.selectedFiles.find(f => f.name === file.name && f.size === file.size)) {
+                this.selectedFiles.push(file);
             }
-            
-            if (file.size > 100 * 1024 * 1024) { // 100MB limit
-                this.showNotification(`${file.name} is too large. Maximum size is 100MB.`, 'error');
-                return false;
-            }
-            
-            if (this.selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
-                // Don't show notification for duplicates when re-selecting same files
-                return false;
-            }
-            
-            return true;
         });
 
-        if (validFiles.length > 0) {
-            this.selectedFiles.push(...validFiles);
-            this.updateUI();
-            this.showNotification(`${validFiles.length} file(s) added successfully.`, 'success');
-        } else if (files.length > 0) {
-            // Only show this if files were selected but none were valid/new
-            const allDuplicates = files.every(file => 
-                this.selectedFiles.some(f => f.name === file.name && f.size === file.size)
-            );
-            if (allDuplicates) {
-                this.showNotification('Files already selected.', 'info');
-            }
+        this.renderFilesList();
+        this.showSection('filesSection');
+
+        // Show notification
+        if (files.length === 1) {
+            this.showNotification(`Added "${files[0].name}" (${this.formatFileSize(files[0].size)})`, 'success');
+        } else {
+            this.showNotification(`Added ${files.length} files`, 'success');
         }
     }
 
@@ -173,6 +196,11 @@ class PDFCompressor {
             this.showSection('filesSection');
             this.showSection('optionsSection');
             this.renderFilesList();
+            
+            // Debug: Check if elements are being shown
+            console.log('Files selected:', this.selectedFiles.length);
+            console.log('Files section display:', getComputedStyle(this.filesSection).display);
+            console.log('Options section display:', getComputedStyle(this.optionsSection).display);
         } else {
             this.hideSection('filesSection');
             this.hideSection('optionsSection');
@@ -207,11 +235,78 @@ class PDFCompressor {
         this.updateTargetSizeDisplay(value);
     }
 
-    updateTargetSizeDisplay(value) {
-        if (value >= 1000) {
-            this.targetSizeValue.textContent = `${(value / 1000).toFixed(1)} MB`;
-        } else {
-            this.targetSizeValue.textContent = `${value} KB`;
+    startPerformanceMonitoring(operation) {
+        return {
+            startTime: performance.now(),
+            startMemory: performance.memory ? performance.memory.usedJSHeapSize : 0,
+            operation: operation
+        };
+    }
+
+    endPerformanceMonitoring(monitoring, fileName = '') {
+        const endTime = performance.now();
+        const endMemory = performance.memory ? performance.memory.usedJSHeapSize : 0;
+        const duration = endTime - monitoring.startTime;
+        const memoryUsed = endMemory - monitoring.startMemory;
+
+        this.performanceMetrics.totalCompressionTime += duration;
+        this.performanceMetrics.totalFilesProcessed++;
+
+        console.log(`Performance: ${monitoring.operation} ${fileName ? `(${fileName})` : ''} took ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`);
+
+        return { duration, memoryUsed };
+    }
+
+    getMemoryUsage() {
+        if (performance.memory) {
+            const used = performance.memory.usedJSHeapSize;
+            const total = performance.memory.totalJSHeapSize;
+            const limit = performance.memory.jsHeapSizeLimit;
+            return {
+                used: (used / 1024 / 1024).toFixed(2),
+                total: (total / 1024 / 1024).toFixed(2),
+                limit: (limit / 1024 / 1024).toFixed(2),
+                percentage: ((used / limit) * 100).toFixed(1)
+            };
+        }
+        return null;
+    }
+
+    cleanupMemory() {
+        // Force garbage collection if available (development only)
+        if (typeof gc !== 'undefined') {
+            gc();
+            console.log('Manual garbage collection performed');
+        }
+
+        // Clear any cached objects
+        if (this.compressedFiles.length > 0) {
+            this.compressedFiles.forEach(fileData => {
+                if (fileData.compressed) {
+                    URL.revokeObjectURL(fileData.compressed);
+                }
+            });
+        }
+
+        console.log('Memory cleanup completed');
+    }
+
+    updatePerformanceMetrics() {
+        if (this.performanceMetrics.totalFilesProcessed > 0) {
+            this.performanceMetrics.averageCompressionTime =
+                this.performanceMetrics.totalCompressionTime / this.performanceMetrics.totalFilesProcessed;
+
+            const totalSavings = this.performanceMetrics.totalOriginalSize - this.performanceMetrics.totalCompressedSize;
+            const overallEfficiency = this.performanceMetrics.totalOriginalSize > 0
+                ? (totalSavings / this.performanceMetrics.totalOriginalSize * 100).toFixed(1)
+                : 0;
+
+            console.log('Performance Summary:', {
+                totalFiles: this.performanceMetrics.totalFilesProcessed,
+                averageTime: `${this.performanceMetrics.averageCompressionTime.toFixed(2)}ms`,
+                overallEfficiency: `${overallEfficiency}%`,
+                memory: this.getMemoryUsage()
+            });
         }
     }
 
@@ -241,49 +336,117 @@ class PDFCompressor {
 
     async compressFiles() {
         if (this.selectedFiles.length === 0 || this.isProcessing) return;
-        
+
         this.isProcessing = true;
         this.compressedFiles = [];
-        
+
         // Get compression level and target size
         const compressionLevel = document.querySelector('input[name="compression"]:checked').value;
         const targetSize = compressionLevel === 'custom' ? parseInt(this.targetSizeInput.value) * 1024 : null;
-        
+
+        // Validate files before processing
+        for (const file of this.selectedFiles) {
+            if (file.size > 100 * 1024 * 1024) { // 100MB limit
+                this.showNotification(`File "${file.name}" is too large. Maximum size is 100MB.`, 'warning');
+                this.isProcessing = false;
+                return;
+            }
+            if (file.type !== 'application/pdf') {
+                this.showNotification(`File "${file.name}" is not a PDF file.`, 'error');
+                this.isProcessing = false;
+                return;
+            }
+        }
+
         // Show progress section
         this.hideSection('uploadSection');
         this.hideSection('optionsSection');
         this.hideSection('filesSection');
         this.showSection('progressSection');
-        
+
         // Notify about compression approach
         if (compressionLevel === 'custom') {
             this.showNotification(`Starting advanced compression targeting ${(targetSize / 1024).toFixed(0)}KB. This may create a simplified version of your PDF.`, 'info');
         } else {
             this.showNotification(`Starting ${compressionLevel} compression using advanced techniques...`, 'info');
         }
-        
+
+        let successCount = 0;
+        let errorCount = 0;
+        let failedFiles = [];
+
         try {
+            const compressionMonitoring = this.startPerformanceMonitoring('Total Compression Process');
+
             for (let i = 0; i < this.selectedFiles.length; i++) {
                 const file = this.selectedFiles[i];
                 const progress = ((i + 1) / this.selectedFiles.length) * 100;
-                
+
                 this.updateProgress(progress, `Compressing ${file.name}...`);
-                
-                const compressedFile = await this.compressPDF(file, compressionLevel, targetSize);
-                this.compressedFiles.push({
-                    original: file,
-                    compressed: compressedFile,
-                    compressionRatio: ((file.size - compressedFile.size) / file.size * 100).toFixed(1)
-                });
+
+                const fileMonitoring = this.startPerformanceMonitoring(`Compress ${file.name}`);
+
+                try {
+                    const compressedFile = await this.compressPDF(file, compressionLevel, targetSize);
+
+                    const filePerformance = this.endPerformanceMonitoring(fileMonitoring, file.name);
+
+                    if (compressedFile && compressedFile.size < file.size) {
+                        this.compressedFiles.push({
+                            original: file,
+                            compressed: compressedFile,
+                            compressionRatio: ((file.size - compressedFile.size) / file.size * 100).toFixed(1),
+                            compressionTime: filePerformance.duration
+                        });
+
+                        // Update metrics
+                        this.performanceMetrics.totalOriginalSize += file.size;
+                        this.performanceMetrics.totalCompressedSize += compressedFile.size;
+
+                        successCount++;
+                    } else {
+                        errorCount++;
+                        failedFiles.push(file.name);
+                        this.showNotification(`Failed to compress "${file.name}". Using original file.`, 'warning');
+                    }
+                } catch (fileError) {
+                    this.endPerformanceMonitoring(fileMonitoring, file.name);
+                    console.error(`Error compressing ${file.name}:`, fileError);
+                    errorCount++;
+                    failedFiles.push(file.name);
+                    this.showNotification(`Error processing "${file.name}": ${fileError.message || 'Unknown error'}`, 'error');
+                }
             }
-            
-            this.showResults();
+
+            // End total compression monitoring
+            const totalPerformance = this.endPerformanceMonitoring(compressionMonitoring);
+            this.updatePerformanceMetrics();
+
+            // Show results
+            if (successCount > 0) {
+                this.showResults();
+
+                if (errorCount > 0) {
+                    this.showNotification(
+                        `${successCount} file(s) compressed successfully, ${errorCount} failed: ${failedFiles.join(', ')}`,
+                        'warning'
+                    );
+                } else {
+                    this.showNotification(`All ${successCount} file(s) compressed successfully!`, 'success');
+                }
+            } else {
+                this.showNotification('No files could be compressed. Please try different settings.', 'error');
+                this.resetApplication();
+            }
+
         } catch (error) {
             console.error('Compression error:', error);
-            this.showNotification('An error occurred during compression. Please try again.', 'error');
+            this.showNotification('An unexpected error occurred during compression. Please try again.', 'error');
             this.resetApplication();
         } finally {
             this.isProcessing = false;
+            // Cleanup memory after processing
+            this.cleanupMemory();
         }
     }
 
@@ -1431,14 +1594,23 @@ class PDFCompressor {
         this.selectedFiles = [];
         this.compressedFiles = [];
         this.isProcessing = false;
-        
+
+        // Reset performance metrics for new session
+        this.performanceMetrics = {
+            totalCompressionTime: 0,
+            averageCompressionTime: 0,
+            totalFilesProcessed: 0,
+            totalOriginalSize: 0,
+            totalCompressedSize: 0
+        };
+
         // Reset UI
         this.showSection('uploadSection');
         this.hideSection('optionsSection');
         this.hideSection('filesSection');
         this.hideSection('progressSection');
         this.hideSection('resultsSection');
-        
+
         // Reset form
         document.querySelector('input[name="compression"][value="medium"]').checked = true;
         this.targetSizeGroup.style.display = 'none';
@@ -1447,6 +1619,9 @@ class PDFCompressor {
         this.targetSizeInput.value = 500;
         this.updateTargetSizeDisplay(500);
         this.fileInput.value = '';
+
+        // Cleanup memory
+        this.cleanupMemory();
     }
 
     showSection(sectionId) {

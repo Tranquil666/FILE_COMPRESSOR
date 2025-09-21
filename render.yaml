@@ -3,7 +3,9 @@ services:
     name: pdf-compressor
     env: node
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: npm run production
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 10000
