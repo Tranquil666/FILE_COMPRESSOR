@@ -78,11 +78,14 @@ class PDFCompressor {
             input.addEventListener('change', () => this.handleCompressionLevelChange());
         });
         
-        // Target size slider events
-        this.targetSizeSlider.addEventListener('input', () => this.updateTargetSizeFromSlider());
-        this.targetSizeInput.addEventListener('input', () => this.updateTargetSizeFromInput());
-        
-        // Prevent default drag behaviors on document
+        // File list events
+        this.filesList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-file-btn') || e.target.closest('.remove-file-btn')) {
+                const button = e.target.classList.contains('remove-file-btn') ? e.target : e.target.closest('.remove-file-btn');
+                const index = parseInt(button.dataset.index);
+                this.removeFile(index);
+            }
+        });
         document.addEventListener('dragover', (e) => e.preventDefault());
         document.addEventListener('drop', (e) => e.preventDefault());
         
@@ -324,7 +327,7 @@ class PDFCompressor {
                         <p>${this.formatFileSize(file.size)}</p>
                     </div>
                 </div>
-                <button class="remove-file-btn" onclick="compressor.removeFile(${index})">
+                <button class="remove-file-btn" data-index="${index}">
                     <i class="fas fa-times"></i>
                 </button>
             `;
