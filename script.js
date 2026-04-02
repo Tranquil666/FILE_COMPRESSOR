@@ -97,17 +97,9 @@ class PDFCompressor {
         });
         document.addEventListener('dragover', (e) => e.preventDefault());
         document.addEventListener('drop', (e) => e.preventDefault());
-        
+
         // Initialize slider display
         this.updateTargetSizeDisplay(500);
-        
-        // Debug: Check if elements exist
-        console.log('Target size elements found:', {
-            targetSizeGroup: !!this.targetSizeGroup,
-            targetSizeSlider: !!this.targetSizeSlider,
-            targetSizeValue: !!this.targetSizeValue,
-            targetSizeInput: !!this.targetSizeInput
-        });
     }
 
     handleDragOver(e) {
@@ -208,11 +200,6 @@ class PDFCompressor {
             this.showSection('filesSection');
             this.showSection('optionsSection');
             this.renderFilesList();
-            
-            // Debug: Check if elements are being shown
-            console.log('Files selected:', this.selectedFiles.length);
-            console.log('Files section display:', getComputedStyle(this.filesSection).display);
-            console.log('Options section display:', getComputedStyle(this.optionsSection).display);
         } else {
             this.hideSection('filesSection');
             this.hideSection('optionsSection');
@@ -226,16 +213,13 @@ class PDFCompressor {
             return;
         }
         const selectedLevel = selectedLevelElement.value;
-        console.log('Compression level changed to:', selectedLevel);
-        
+
         if (selectedLevel === 'custom') {
             this.targetSizeGroup.style.display = 'block';
             this.targetSizeGroup.classList.add('active');
-            console.log('Custom compression mode activated');
         } else {
             this.targetSizeGroup.style.display = 'none';
             this.targetSizeGroup.classList.remove('active');
-            console.log('Standard compression mode');
         }
     }
 
@@ -1633,11 +1617,26 @@ class PDFCompressor {
                 resolve(window.JSZip);
                 return;
             }
-            
+
+            // Set timeout for loading JSZip
+            const timeout = setTimeout(() => {
+                reject(new Error('JSZip library loading timeout'));
+            }, 10000); // 10 second timeout
+
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-            script.onload = () => resolve(window.JSZip);
-            script.onerror = reject;
+            script.onload = () => {
+                clearTimeout(timeout);
+                if (window.JSZip) {
+                    resolve(window.JSZip);
+                } else {
+                    reject(new Error('JSZip loaded but not available'));
+                }
+            };
+            script.onerror = () => {
+                clearTimeout(timeout);
+                reject(new Error('Failed to load JSZip library'));
+            };
             document.head.appendChild(script);
         });
     }

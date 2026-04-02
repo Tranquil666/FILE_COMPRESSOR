@@ -382,8 +382,16 @@ class UniversalFileCompressor {
             const id = Math.random().toString(36).substr(2, 9);
             const arrayBuffer = await file.arrayBuffer();
 
+            // Set timeout to prevent orphaned listeners
+            const timeout = setTimeout(() => {
+                availableWorker.worker.removeEventListener('message', messageHandler);
+                availableWorker.busy = false;
+                reject(new Error('Worker timeout - no response received'));
+            }, 60000); // 60 second timeout
+
             const messageHandler = (e) => {
                 if (e.data.id === id) {
+                    clearTimeout(timeout); // Clear the timeout
                     availableWorker.worker.removeEventListener('message', messageHandler);
                     availableWorker.busy = false;
 

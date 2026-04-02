@@ -196,6 +196,11 @@ async function compressImage(arrayBuffer, options) {
 async function compressText(arrayBuffer, options) {
     const uint8Array = new Uint8Array(arrayBuffer);
 
+    // Check if pako library is loaded
+    if (typeof pako === 'undefined') {
+        throw new Error('pako library not loaded');
+    }
+
     // Use pako for gzip compression
     const compressed = pako.gzip(uint8Array, {
         level: options.level === 'high' ? 9 : options.level === 'medium' ? 6 : 3
