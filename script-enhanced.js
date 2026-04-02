@@ -682,7 +682,10 @@ class UniversalFileCompressor {
         this.hideSection('resultsSection');
 
         this.fileInput.value = '';
-        document.querySelector('input[name="compression"][value="medium"]').checked = true;
+        const defaultCompressionInput = document.querySelector('input[name="compression"][value="balanced"]');
+        if (defaultCompressionInput) {
+            defaultCompressionInput.checked = true;
+        }
         this.handleCompressionLevelChange();
     }
 

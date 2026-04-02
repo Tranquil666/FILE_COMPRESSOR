@@ -1623,7 +1623,10 @@ class PDFCompressor {
         this.hideSection('resultsSection');
 
         // Reset form
-        document.querySelector('input[name="compression"][value="medium"]').checked = true;
+        const defaultCompressionInput = document.querySelector('input[name="compression"][value="balanced"]');
+        if (defaultCompressionInput) {
+            defaultCompressionInput.checked = true;
+        }
         this.targetSizeGroup.style.display = 'none';
         this.targetSizeGroup.classList.remove('active');
         this.targetSizeSlider.value = 500;
