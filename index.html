@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <title>PDF Compressor - Reduce PDF File Size Online</title>
-    <meta name="description" content="Compress PDF files online for free. Reduce file size while maintaining quality. Fast, secure, and works in your browser.">
+    <title>Universal File Compressor - Reduce File Size Online</title>
+    <meta name="description" content="Compress PDF, images, documents and archives online for free. Advanced compression algorithms with Web Workers. Fast, secure, and works in your browser.">
     
     <!-- Mobile-specific meta tags -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="PDF Compressor">
+    <meta name="apple-mobile-web-app-title" content="File Compressor">
     <meta name="theme-color" content="#667eea">
     <meta name="msapplication-navbutton-color" content="#667eea">
     <link rel="stylesheet" href="styles.css">
@@ -22,10 +22,10 @@
         <!-- Header -->
         <header class="header">
             <div class="logo">
-                <i class="fas fa-file-pdf"></i>
-                <h1>PDF Compressor</h1>
+                <i class="fas fa-compress-arrows-alt"></i>
+                <h1>Universal File Compressor</h1>
             </div>
-            <p class="subtitle">Reduce your PDF file size while maintaining quality</p>
+            <p class="subtitle">Compress PDF, images, documents & archives with advanced algorithms</p>
         </header>
 
         <!-- Main Content -->
@@ -36,13 +36,13 @@
                     <div class="upload-icon">
                         <i class="fas fa-cloud-upload-alt"></i>
                     </div>
-                    <h2>Drop your PDF here</h2>
+                    <h2>Drop your files here</h2>
                     <p>or <span class="browse-text">browse files</span></p>
                     <div class="file-info">
-                        <small>Maximum file size: 100MB • Supports multiple files</small>
+                        <small>Supports: PDF, Images (JPG, PNG, WebP), Documents (TXT, HTML, JS, JSON) • Max 100MB per file</small>
                     </div>
                 </div>
-                <input type="file" id="fileInput" accept=".pdf" multiple style="display: none;">
+                <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.webp,.bmp,.txt,.html,.css,.js,.json,.xml,.zip" multiple style="display: none;">
             </section>
 
             <!-- Compression Options -->
@@ -53,22 +53,22 @@
                         <div class="option-group">
                             <label>Compression Level:</label>
                             <div class="compression-levels">
-                                <input type="radio" id="low" name="compression" value="low" checked>
-                                <label for="low" class="compression-label">
-                                    <span class="level-name">Low</span>
-                                    <span class="level-desc">Better quality, larger size</span>
+                                <input type="radio" id="quality" name="compression" value="quality" checked>
+                                <label for="quality" class="compression-label">
+                                    <span class="level-name">Quality</span>
+                                    <span class="level-desc">High quality, moderate compression</span>
                                 </label>
 
-                                <input type="radio" id="medium" name="compression" value="medium">
-                                <label for="medium" class="compression-label">
-                                    <span class="level-name">Medium</span>
-                                    <span class="level-desc">Balanced quality and size</span>
+                                <input type="radio" id="balanced" name="compression" value="balanced">
+                                <label for="balanced" class="compression-label">
+                                    <span class="level-name">Balanced</span>
+                                    <span class="level-desc">Best balance of size and quality</span>
                                 </label>
 
-                                <input type="radio" id="high" name="compression" value="high">
-                                <label for="high" class="compression-label">
-                                    <span class="level-name">High</span>
-                                    <span class="level-desc">Smaller size, good quality</span>
+                                <input type="radio" id="maximum" name="compression" value="maximum">
+                                <label for="maximum" class="compression-label">
+                                    <span class="level-name">Maximum</span>
+                                    <span class="level-desc">Maximum compression, lower quality</span>
                                 </label>
 
                                 <input type="radio" id="custom" name="compression" value="custom">
@@ -97,7 +97,7 @@
                     </div>
                     <button class="compress-btn" id="compressBtn">
                         <i class="fas fa-compress-alt"></i>
-                        Compress PDF
+                        Compress Files
                     </button>
                 </div>
             </section>
@@ -159,25 +159,25 @@
                 </div>
                 <div class="feature-card">
                     <i class="fas fa-bolt"></i>
-                    <h4>Lightning Fast</h4>
-                    <p>Advanced compression algorithms for quick processing without quality loss.</p>
+                    <h4>Multi-threaded Processing</h4>
+                    <p>Uses Web Workers for parallel compression. Process multiple files simultaneously.</p>
                 </div>
                 <div class="feature-card">
-                    <i class="fas fa-mobile-alt"></i>
-                    <h4>Works Everywhere</h4>
-                    <p>Compatible with all devices and browsers. No software installation required.</p>
+                    <i class="fas fa-sliders-h"></i>
+                    <h4>Advanced Algorithms</h4>
+                    <p>Multiple compression methods including Brotli, gzip, and optimized image encoding.</p>
                 </div>
                 <div class="feature-card">
-                    <i class="fas fa-infinity"></i>
-                    <h4>Unlimited Use</h4>
-                    <p>Compress as many PDF files as you want, completely free of charge.</p>
+                    <i class="fas fa-layer-group"></i>
+                    <h4>Multi-format Support</h4>
+                    <p>Compress PDF, JPEG, PNG, WebP, text documents, and more file formats.</p>
                 </div>
             </div>
         </section>
 
         <!-- Footer -->
         <footer class="footer">
-            <p>&copy; 2024 PDF Compressor. Built with ❤️ for better file management.</p>
+            <p>&copy; 2024 Universal File Compressor. Built with ❤️ for better file management.</p>
             <p class="made-by">Made by <span class="creator-name">Faisal</span></p>
         </footer>
     </div>
@@ -193,6 +193,7 @@
     <!-- Scripts -->
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="script-enhanced.js"></script>
 </body>
 </html>
