@@ -84,9 +84,19 @@ async function compressPDF(arrayBuffer, options) {
         const page = await pdf.getPage(pageNum);
         const viewport = page.getViewport({ scale: scale });
 
-        // Create off-screen canvas
-        const canvas = new OffscreenCanvas(viewport.width, viewport.height);
-        const context = canvas.getContext('2d');
+        // Create off-screen canvas with fallback
+        let canvas, context;
+        if (typeof OffscreenCanvas !== 'undefined') {
+            canvas = new OffscreenCanvas(viewport.width, viewport.height);
+            context = canvas.getContext('2d');
+        } else {
+            // Fallback: return error if OffscreenCanvas not supported
+            throw new Error('OffscreenCanvas not supported in this environment');
+        }
+
+        if (!context) {
+            throw new Error('Failed to get 2d context from canvas');
+        }
 
         // Render page
         await page.render({
@@ -99,6 +109,10 @@ async function compressPDF(arrayBuffer, options) {
             type: 'image/jpeg',
             quality: imageQuality
         });
+
+        if (!blob) {
+            throw new Error('Failed to convert canvas to blob');
+        }
 
         const imageBytes = new Uint8Array(await blob.arrayBuffer());
         const image = await newPdf.embedJpg(imageBytes);
@@ -127,6 +141,11 @@ async function compressImage(arrayBuffer, options) {
 
     // Create image bitmap
     const blob = new Blob([arrayBuffer]);
+
+    if (typeof createImageBitmap === 'undefined') {
+        throw new Error('createImageBitmap not supported in this environment');
+    }
+
     const imageBitmap = await createImageBitmap(blob);
 
     // Calculate dimensions
@@ -143,9 +162,18 @@ async function compressImage(arrayBuffer, options) {
     const width = Math.floor(imageBitmap.width * scale);
     const height = Math.floor(imageBitmap.height * scale);
 
-    // Create canvas and draw scaled image
+    // Create canvas and draw scaled image with OffscreenCanvas check
+    if (typeof OffscreenCanvas === 'undefined') {
+        throw new Error('OffscreenCanvas not supported in this environment');
+    }
+
     const canvas = new OffscreenCanvas(width, height);
     const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+        throw new Error('Failed to get 2d context from canvas');
+    }
+
     ctx.drawImage(imageBitmap, 0, 0, width, height);
 
     // Determine output format and quality
@@ -167,6 +195,11 @@ async function compressImage(arrayBuffer, options) {
 // Text/Document Compression using gzip/deflate
 async function compressText(arrayBuffer, options) {
     const uint8Array = new Uint8Array(arrayBuffer);
+
+    // Check if pako library is loaded
+    if (typeof pako === 'undefined') {
+        throw new Error('pako library not loaded');
+    }
 
     // Use pako for gzip compression
     const compressed = pako.gzip(uint8Array, {

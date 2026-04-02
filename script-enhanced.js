@@ -222,7 +222,12 @@ class UniversalFileCompressor {
     }
 
     handleCompressionLevelChange() {
-        const selectedLevel = document.querySelector('input[name="compression"]:checked').value;
+        const selectedLevelElement = document.querySelector('input[name="compression"]:checked');
+        if (!selectedLevelElement) {
+            console.warn('No compression level selected');
+            return;
+        }
+        const selectedLevel = selectedLevelElement.value;
 
         if (selectedLevel === 'custom') {
             this.targetSizeGroup.style.display = 'block';
@@ -282,9 +287,26 @@ class UniversalFileCompressor {
         };
 
         // Get compression settings
-        const compressionLevel = document.querySelector('input[name="compression"]:checked').value;
+        const compressionLevelElement = document.querySelector('input[name="compression"]:checked');
+        if (!compressionLevelElement) {
+            this.showNotification('Please select a compression level.', 'error');
+            this.isProcessing = false;
+            return;
+        }
+        const compressionLevel = compressionLevelElement.value;
         const preset = this.compressionPresets[compressionLevel] || this.compressionPresets.balanced;
-        const targetSize = compressionLevel === 'custom' ? parseInt(this.targetSizeInput.value) * 1024 : null;
+
+        // Validate target size input
+        let targetSize = null;
+        if (compressionLevel === 'custom') {
+            const targetSizeValue = parseInt(this.targetSizeInput.value);
+            if (isNaN(targetSizeValue) || targetSizeValue <= 0) {
+                this.showNotification('Please enter a valid target file size.', 'error');
+                this.isProcessing = false;
+                return;
+            }
+            targetSize = targetSizeValue * 1024;
+        }
 
         // Show progress
         this.hideSection('uploadSection');
@@ -360,8 +382,16 @@ class UniversalFileCompressor {
             const id = Math.random().toString(36).substr(2, 9);
             const arrayBuffer = await file.arrayBuffer();
 
+            // Set timeout to prevent orphaned listeners
+            const timeout = setTimeout(() => {
+                availableWorker.worker.removeEventListener('message', messageHandler);
+                availableWorker.busy = false;
+                reject(new Error('Worker timeout - no response received'));
+            }, 60000); // 60 second timeout
+
             const messageHandler = (e) => {
                 if (e.data.id === id) {
+                    clearTimeout(timeout); // Clear the timeout
                     availableWorker.worker.removeEventListener('message', messageHandler);
                     availableWorker.busy = false;
 
@@ -681,12 +711,29 @@ class UniversalFileCompressor {
         this.hideSection('progressSection');
         this.hideSection('resultsSection');
 
-        this.fileInput.value = '';
-        const defaultCompressionInput = document.querySelector('input[name="compression"][value="balanced"]');
+        if (this.fileInput) {
+            this.fileInput.value = '';
+        }
+
+        // Reset compression level to default
+        const defaultCompressionInput = document.querySelector('input[name="compression"][value="quality"]');
         if (defaultCompressionInput) {
             defaultCompressionInput.checked = true;
         }
-        this.handleCompressionLevelChange();
+        if (this.targetSizeGroup) {
+            this.targetSizeGroup.style.display = 'none';
+        }
+    }
+
+    // Helper method to convert data URL to Uint8Array
+    dataURLToUint8Array(dataURL) {
+        const base64 = dataURL.split(',')[1];
+        const binaryString = atob(base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes;
     }
 
     showSection(sectionId) {
@@ -785,12 +832,19 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing Universal File Compressor...');
     compressor = new UniversalFileCompressor();
 
-    // Wait for libraries to load
+    // Wait for libraries to load with timeout
+    let checkCount = 0;
+    const maxChecks = 100; // 10 seconds max (100 * 100ms)
     const checkLibraries = setInterval(() => {
+        checkCount++;
         if (typeof PDFLib !== 'undefined' && typeof pdfjsLib !== 'undefined') {
             clearInterval(checkLibraries);
             console.log('All libraries loaded successfully');
             compressor.showNotification('Ready to compress files!', 'success');
+        } else if (checkCount >= maxChecks) {
+            clearInterval(checkLibraries);
+            console.error('Libraries failed to load within timeout');
+            compressor.showNotification('Some libraries failed to load. Functionality may be limited.', 'warning');
         }
     }, 100);
 });
